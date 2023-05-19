@@ -36,7 +36,7 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/access/
  *   voting session by calling startNewVotingSession.
  *
  *   Notes :
- *   - This code probably have to be optimised in term of gas usage.
+ *   - This code probably has to be optimised in term of gas usage.
  *   - Some functions can be called by anyone, this is to be updated according to the wanted
  *     visibility for voting process (do you want anyone to be able to see voting process, or
  *     only voters should see info ?)
@@ -199,7 +199,7 @@ contract Vote is Ownable {
      * @return string[] containing registered voters addresses
      * Note : the id of each vote option is its index in the table
      */
-    function getVoteChoices() view public whitelistedVotersOnly returns (string[] memory) {
+    function getVoteChoices() view public returns (string[] memory) {
         string[] memory voteChoices = new string[](proposalsArray.length);
         for (uint i=0; i<proposalsArray.length; i++) {
             voteChoices[i] = proposalsArray[i].description;
