@@ -321,6 +321,7 @@ contract Vote is Ownable {
             delete voters[votersArray[i]];
         }
         delete votersArray;
+        delete proposalsArray;
         setVotingStep(WorkflowStatus.RegisteringVoters);
     }
 }
