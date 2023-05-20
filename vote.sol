@@ -16,16 +16,18 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/access/
  *   Note that the administrator is not allowed to submit voting options unless he added himself
  *   as a registered voter.
  *   Registered voters can get list of submited vote choices using getVoteChoices.
- *   Once all proposals have been submited, the administrator can call endProposalRegistration
+ *   Once all proposals have been submited, the administrator shall call endProposalRegistration
  *   to go to next step.
  * - ProposalsRegistrationEnded :
  *   Voters can't send proposals anymore.
  *   Administrator can go to next state anytime he wants by using startVotingSession function.
  * - VotingSessionStarted :
- *   the registered voters are now allowed to submit their voting choice
- *   using vote function. Each voter can only submit one voting choice and will not be allowed
- *   to change his vote.
- *   Once done, the administrator can call endVotingSession to go to the next step.
+ *   the registered voters are now allowed to submit their voting choice using vote function.
+ *   Each voter can only submit one voting choice and will not be allowed to change his vote unless
+ *   administration set allowVoteUpdate to true using setAllowVoteUpdate function. If allowVoteUpdate
+ *   is set to true, voters will be allowed to change their mind as long as vote session is not
+ *   finished.
+ *   Once done, the administrator shall call endVotingSession to go to the next step.
  * - VotingSessionEnded :
  *   voting is not possible anymore.
  *   Administrator can trigger the counting of votes to find the winning proposal by calling
