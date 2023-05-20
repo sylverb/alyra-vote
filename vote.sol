@@ -39,12 +39,12 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/access/
  *   - This code probably has to be optimised in term of gas usage.
  *   - Some functions can be called by anyone, this is to be updated according to the wanted
  *     visibility for voting process (do you want anyone to be able to see voting process, or
- *     only voters should see info ?)
- *   - vote function will not allow voters to update their vote. if allowVoteUpdate is set to
- *     true, voters will be allowed to update their vote by using updateVote function.
- *     allowVoteUpdate is hardcoded in smart contract but code could be updated to allow admin
- *     to update this setting anytime.
- *
+ *     only voters should see info ?).
+ *   - vote function will not allow voters to update their vote unless allowVoteUpdate is set to
+ *     true. This is set to false by default but can be updated by admin using setAllowVoteUpdate
+ *     function.
+ *   - If this is deployed on a public blockchain, all activity will be visible by anyone by using
+ *     the blockchain explorer.
  */
 
 contract Vote is Ownable {
@@ -80,14 +80,14 @@ contract Vote is Ownable {
     address[] votersArray; // Needed to reset voters when starting a new vote
     Proposal[] proposalsArray;
     Result finalResult;
-    bool allowVoteUpdate = true;
+    bool allowVoteUpdate;
 
     // events sent during voting process
     event VoterRegistered(address voterAddress); 
     event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
     event ProposalRegistered(uint proposalId);
     event Voted(address voter, uint proposalId);
-    event VoteUpdated(address voter, uint proposalId);
+    event VoteUpdated(address voter, uint previousProposalId, uint newProposalId);
 
     /*
      * @dev Allow to progress in the voting state machine defined in WorkflowStatus and emit event
@@ -101,6 +101,14 @@ contract Vote is Ownable {
         require((uint(newStep) == ((uint(votingStep)+1)%(uint(type(WorkflowStatus).max)+1))), "Illegal new step");
         emit WorkflowStatusChange(votingStep, newStep);
         votingStep = newStep;
+    }
+
+    /*
+     * @dev Allow admin to enable or disable vote update possibility
+     * @param _value bool true to enable vote update and false to disable it
+     */
+    function setAllowVoteUpdate(bool _value) public onlyOwner {
+        allowVoteUpdate = _value;
     }
 
     /*
@@ -258,25 +266,21 @@ contract Vote is Ownable {
      * 
      */
     function vote(uint _proposalId) public whitelistedVotersOnly onlyDuringVotingSession {
-        require(voters[msg.sender].hasVoted == false,"You can only vote once");
+        if (!allowVoteUpdate)
+            require(voters[msg.sender].hasVoted == false,"You can only vote once");
         require(_proposalId < proposalsArray.length,"Proposal ID does not exist");
-        voters[msg.sender].hasVoted = true;
-        voters[msg.sender].votedProposalId = _proposalId;
-        proposalsArray[_proposalId].voteCount++;
-        emit Voted(msg.sender, _proposalId);
-    }
 
-    /*
-     * @dev Allow registered voters to update their vote if allowVoteUpdate is set to true
-     */
-    function updateVote(uint _proposalId) public whitelistedVotersOnly onlyDuringVotingSession {
-        require(allowVoteUpdate == true,"vote update is not allowed");
-        require(voters[msg.sender].hasVoted == true,"You can't update if you didn't already vote");
-        require(_proposalId < proposalsArray.length,"Proposal ID does not exist");
-        proposalsArray[voters[msg.sender].votedProposalId].voteCount--;
+        if (allowVoteUpdate && voters[msg.sender].hasVoted) {
+            // We are updating vote, remove previous vote and send update event
+            proposalsArray[voters[msg.sender].votedProposalId].voteCount--;
+            emit VoteUpdated(msg.sender, voters[msg.sender].votedProposalId, _proposalId);
+        } else {
+            // This is the initial vote, mark vote as done and send vote event
+            voters[msg.sender].hasVoted = true;
+            emit Voted(msg.sender, _proposalId);
+        }
         voters[msg.sender].votedProposalId = _proposalId;
         proposalsArray[_proposalId].voteCount++;
-        emit VoteUpdated(msg.sender, _proposalId);
     }
 
     /*
