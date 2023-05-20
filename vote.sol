@@ -9,7 +9,7 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/access/
  * - Registering Voters :
  *   the administrator is allowed to register the list of voters using the
  *   registerVotersAddress / registerVotersAddresses functions. Once done, the administrator can
- *   call endRegisteringVoters to go to the next step.
+ *   call startProposalsRegistration to go to the next step.
  * - ProposalsRegistrationStarted :
  *   the registered voters can submit some voting options (they
  *   can submit any number of voting proposal) using addVoteChoice function.
@@ -219,10 +219,10 @@ contract Vote is Ownable {
     }
 
     /*
-     * @dev Allow admin to end voters registering step
+     * @dev Allow admin to end voters registration step and start proposals registration step
      * Note : admin has to add at least one voter to be allowed to go to next step
      */
-    function endRegisteringVoters() public onlyOwner onlyDuringVotersRegistering {
+    function startProposalsRegistration() public onlyOwner onlyDuringVotersRegistering {
         require(votersArray.length != 0,"At least one voter must be registered to continue to next step"); // Who wants to start a vote with no voter ?
         setVotingStep(WorkflowStatus.ProposalsRegistrationStarted);
     }
