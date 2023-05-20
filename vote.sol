@@ -43,8 +43,8 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/access/
  *   - vote function will not allow voters to update their vote unless allowVoteUpdate is set to
  *     true. This is set to false by default but can be updated by admin using setAllowVoteUpdate
  *     function.
- *   - If this is deployed on a public blockchain, all activity will be visible by anyone by using
- *     the blockchain explorer.
+ *   - Privacy notice : Anyone with an access to the blockchain explorer will have access to the
+ *     contract activity. Don't use this if privacy is a concern for vote.
  */
 
 contract Vote is Ownable {
