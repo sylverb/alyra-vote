@@ -136,6 +136,25 @@ contract Vote is Ownable {
     }
 
     /*
+     * @dev Allow voters to get vote info for all voters
+     * @return VoterDetails array
+     */
+    struct VoterDetails {
+        address VoterAddress;
+        bool hasVoted;
+        uint votedProposalId;
+    }
+    function getAllVotersInfo() view public whitelistedVotersOnly returns (VoterDetails[] memory) {
+        VoterDetails[] memory votersDetails = new VoterDetails[](votersArray.length);
+        for (uint i=0; i<votersArray.length; i++) {
+            VoterDetails memory voterDetails =
+                VoterDetails(votersArray[i],voters[votersArray[i]].hasVoted,voters[votersArray[i]].votedProposalId);
+            votersDetails[i]=voterDetails;
+        }
+        return votersDetails;
+    }
+
+    /*
      * @dev Allow voters to get the list of available proposals
      * @return string[] containing a list addresses
      * Note : the id of each vote option is its index in the table
