@@ -112,11 +112,32 @@ contract Vote is Ownable {
     }
 
     /*
-     * @dev Allow to get the the list of registered voters
+     * @dev Allow anyone to get the the list of registered voters
      * @return address[] containing registered voters addresses
      */
     function getVotersList() public view returns (address[] memory) {
         return votersArray;
+    }
+
+    /*
+     * @dev Allow voters to get vote info from any voter
+     * @return Voter structure
+     */
+    function getVoterInfo(address _address) public view whitelistedVotersOnly returns (Voter memory) {
+        return voters[_address];
+    }
+
+    /*
+     * @dev Allow anyone to get the list of available vote options
+     * @return string[] containing registered voters addresses
+     * Note : the id of each vote option is its index in the table
+     */
+    function getVoteChoices() view public returns (string[] memory) {
+        string[] memory voteChoices = new string[](proposalsArray.length);
+        for (uint i=0; i<proposalsArray.length; i++) {
+            voteChoices[i] = proposalsArray[i].description;
+        }
+        return voteChoices;
     }
 
     /****************************************************/
@@ -191,19 +212,6 @@ contract Vote is Ownable {
         // we are going to add
         emit ProposalRegistered(proposalsArray.length);
         proposalsArray.push(Proposal(_proposalDescription,0));
-    }
-
-    /*
-     * @dev Allow registered voters to get the list of available vote options
-     * @return string[] containing registered voters addresses
-     * Note : the id of each vote option is its index in the table
-     */
-    function getVoteChoices() view public returns (string[] memory) {
-        string[] memory voteChoices = new string[](proposalsArray.length);
-        for (uint i=0; i<proposalsArray.length; i++) {
-            voteChoices[i] = proposalsArray[i].description;
-        }
-        return voteChoices;
     }
 
     /*
