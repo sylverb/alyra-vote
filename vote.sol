@@ -74,8 +74,7 @@ contract Vote is Ownable {
         uint winningProposalId;
     }
 
-    // We wants the results to be available for a minimum period so everyone could see them
-    uint resultGracePeriod = 10 minutes;
+    uint resultGracePeriod = 10 minutes; // We want the results to be available for a minimum period so everyone could see them
     WorkflowStatus votingStep;
     mapping (address => Voter) voters;
     address[] votersArray; // Needed to reset voters when starting a new vote
