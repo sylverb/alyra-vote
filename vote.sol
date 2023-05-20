@@ -266,7 +266,7 @@ contract Vote is Ownable {
     /* Actions available during VotingSessionStarted         */
     /*********************************************************/
     modifier onlyDuringVotingSession() {
-        require(votingStep == WorkflowStatus.VotingSessionStarted, "Voting session ongoing");
+        require(votingStep == WorkflowStatus.VotingSessionStarted, "Voting session not ongoing");
         _;
     }
 
