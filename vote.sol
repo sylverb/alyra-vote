@@ -140,6 +140,16 @@ contract Vote is Ownable {
         return voteChoices;
     }
 
+    /*
+     * @dev Allow voters to get info on a vote option
+     * @return string[] containing 
+     * Note : the id of each vote option is its index in the table
+     */
+    function getProposalInfo(uint _proposalId) view public whitelistedVotersOnly returns (Proposal memory) {
+        require (_proposalId < proposalsArray.length, "Invalid proposal id");
+        return proposalsArray[_proposalId];
+    }
+
     /****************************************************/
     /* Actions available during RegisteringVoters state */
     /****************************************************/
