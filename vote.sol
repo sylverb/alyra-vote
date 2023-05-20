@@ -31,7 +31,7 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/access/
  *   Administrator can trigger the counting of votes to find the winning proposal by calling
  *   countVotes function.
  * - VotesTallied :
- *   the result is now available using getWinner function.
+ *   the result is now publicly available using getWinner function and getWinnerProposalDetails.
  *   After a grace period defined in resultGracePeriod, the administrator can restart a new
  *   voting session by calling startNewVote.
  *
@@ -136,8 +136,8 @@ contract Vote is Ownable {
     }
 
     /*
-     * @dev Allow voters to get the list of available vote options
-     * @return string[] containing registered voters addresses
+     * @dev Allow voters to get the list of available proposals
+     * @return string[] containing a list addresses
      * Note : the id of each vote option is its index in the table
      */
     function getVoteChoices() view public whitelistedVotersOnly returns (string[] memory) {
@@ -146,6 +146,15 @@ contract Vote is Ownable {
             voteChoices[i] = proposalsArray[i].description;
         }
         return voteChoices;
+    }
+
+    /*
+     * @dev Allow voters to get the detailed information of all proposals
+     * @return string[] containing registered voters addresses
+     * Note : the id of each vote option is its index in the table
+     */
+    function getVotesDetails() view public whitelistedVotersOnly returns (Proposal[] memory) {
+        return proposalsArray;
     }
 
     /*
@@ -324,8 +333,16 @@ contract Vote is Ownable {
      * @dev Allow to get id of the winning proposal
      * @return uint32 containing id of the winning proposal
      */
-    function getWinner() public view onlyDuringVotesTallied returns (uint) {
+    function getWinnerId() public view onlyDuringVotesTallied returns (uint) {
         return finalResult.winningProposalId;
+    }
+
+    /*
+     * @dev Allow to get id of the winning proposal
+     * @return uint32 containing id of the winning proposal
+     */
+    function getWinnerProposalDetails() public view onlyDuringVotesTallied returns (Proposal memory) {
+        return proposalsArray[finalResult.winningProposalId];
     }
 
     /*
