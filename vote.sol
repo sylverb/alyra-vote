@@ -33,7 +33,7 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/access/
  * - VotesTallied :
  *   the result is now available using getWinner function.
  *   After a grace period defined in resultGracePeriod, the administrator can restart a new
- *   voting session by calling startNewVotingSession.
+ *   voting session by calling startNewVote.
  *
  *   Notes :
  *   - This code probably has to be optimised in term of gas usage.
@@ -329,12 +329,12 @@ contract Vote is Ownable {
     }
 
     /*
-     * @dev Allow admin to reset result and start a new voting session
+     * @dev Allow admin to reset result and start a new vote
      * Note : a grace period have to be respected to make sure that the result
      *        has been available for enough time.
      *        When restarted, everything is reinitialized, including voters list.
      */
-    function startNewVotingSession() public onlyOwner onlyDuringVotesTallied {
+    function startNewVote() public onlyOwner onlyDuringVotesTallied {
         require(block.timestamp >= finalResult.resultDate + resultGracePeriod,"Wait for the grace period to end");
         finalResult.winningProposalId = 0;
         // remove current voters
