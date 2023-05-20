@@ -37,7 +37,7 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/contracts/access/
  *
  *   Notes :
  *   - This code probably has to be optimised in term of gas usage.
- *   - Some functions can be called by anyone, this is to be updated according to the wanted
+ *   - Some functions can be called by voters only, this is to be updated according to the wanted
  *     visibility for voting process (do you want anyone to be able to see voting process, or
  *     only voters should see info ?).
  *   - vote function will not allow voters to update their vote unless allowVoteUpdate is set to
