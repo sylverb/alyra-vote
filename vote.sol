@@ -109,7 +109,7 @@ contract Vote is Ownable {
      * @dev Allow admin to enable or disable vote update possibility
      * @param _value bool true to enable vote update and false to disable it
      */
-    function setAllowVoteUpdate(bool _value) public onlyOwner {
+    function setAllowVoteUpdate(bool _value) external onlyOwner {
         allowVoteUpdate = _value;
     }
 
@@ -117,7 +117,7 @@ contract Vote is Ownable {
      * @dev Allow to get the current state of the voting process
      * @return current step
      */
-    function getVotingStep() public view returns (uint) {
+    function getVotingStep() external view returns (uint) {
         return uint(votingStep);
     }
 
@@ -125,7 +125,7 @@ contract Vote is Ownable {
      * @dev Allow anyone to get the the list of registered voters
      * @return address[] containing registered voters addresses
      */
-    function getVotersList() public view returns (address[] memory) {
+    function getVotersList() external view returns (address[] memory) {
         return votersArray;
     }
 
@@ -133,7 +133,7 @@ contract Vote is Ownable {
      * @dev Allow voters to get vote info from any voter
      * @return Voter structure
      */
-    function getVoterInfo(address _address) view public whitelistedVotersOnly returns (Voter memory) {
+    function getVoterInfo(address _address) view external whitelistedVotersOnly returns (Voter memory) {
         return voters[_address];
     }
 
@@ -146,7 +146,7 @@ contract Vote is Ownable {
         bool hasVoted;
         uint votedProposalId;
     }
-    function getAllVotersInfo() view public whitelistedVotersOnly returns (VoterDetails[] memory) {
+    function getAllVotersInfo() view external whitelistedVotersOnly returns (VoterDetails[] memory) {
         VoterDetails[] memory votersDetails = new VoterDetails[](votersArray.length);
         for (uint i=0; i<votersArray.length; i++) {
             VoterDetails memory voterDetails =
@@ -161,7 +161,7 @@ contract Vote is Ownable {
      * @return string[] containing a list addresses
      * Note : the id of each vote option is its index in the table
      */
-    function getVoteChoices() view public whitelistedVotersOnly returns (string[] memory) {
+    function getVoteChoices() view external whitelistedVotersOnly returns (string[] memory) {
         string[] memory voteChoices = new string[](proposalsArray.length);
         for (uint i=0; i<proposalsArray.length; i++) {
             voteChoices[i] = proposalsArray[i].description;
@@ -174,7 +174,7 @@ contract Vote is Ownable {
      * @return string[] containing registered voters addresses
      * Note : the id of each vote option is its index in the table
      */
-    function getVotesDetails() view public whitelistedVotersOnly returns (Proposal[] memory) {
+    function getVotesDetails() view external whitelistedVotersOnly returns (Proposal[] memory) {
         return proposalsArray;
     }
 
@@ -183,7 +183,7 @@ contract Vote is Ownable {
      * @return string[] containing 
      * Note : the id of each vote option is its index in the table
      */
-    function getProposalInfo(uint _proposalId) view public whitelistedVotersOnly returns (Proposal memory) {
+    function getProposalInfo(uint _proposalId) view external whitelistedVotersOnly returns (Proposal memory) {
         require (_proposalId < proposalsArray.length, "Invalid proposal id");
         return proposalsArray[_proposalId];
     }
@@ -201,7 +201,7 @@ contract Vote is Ownable {
      * @param _addresses address[] a list of addresses to register
      *        example : [0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2,0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db]
      */
-    function registerVotersAddresses(address[] memory _addresses) public onlyOwner onlyDuringVotersRegistering {
+    function registerVotersAddresses(address[] memory _addresses) external onlyOwner onlyDuringVotersRegistering {
         for (uint i=0; i<_addresses.length; i++) {
             voters[_addresses[i]].isRegistered = true;
             votersArray.push(_addresses[i]);
@@ -213,7 +213,7 @@ contract Vote is Ownable {
      * @dev Allow admin to register a single voter address
      * @param _address address an address to register
      */
-    function registerVotersAddress(address _address) public onlyOwner onlyDuringVotersRegistering {
+    function registerVotersAddress(address _address) external onlyOwner onlyDuringVotersRegistering {
         require(voters[_address].isRegistered == false,"Voter already registered");
         emit VoterRegistered(_address);
         voters[_address].isRegistered = true;
@@ -224,7 +224,7 @@ contract Vote is Ownable {
      * @dev Allow admin to end voters registration step and start proposals registration step
      * Note : admin has to add at least one voter to be allowed to go to next step
      */
-    function startProposalsRegistration() public onlyOwner onlyDuringVotersRegistering {
+    function startProposalsRegistration() external onlyOwner onlyDuringVotersRegistering {
         require(votersArray.length != 0,"At least one voter must be registered to continue to next step"); // Who wants to start a vote with no voter ?
         setVotingStep(WorkflowStatus.ProposalsRegistrationStarted);
     }
@@ -246,7 +246,7 @@ contract Vote is Ownable {
      * @dev Allow voters to add a vote option and emit event
      * @param _proposalDescription string description of a new vote option
      */
-    function addVoteChoice(string memory _proposalDescription) public whitelistedVotersOnly onlyDuringProposalRegistering {
+    function addVoteChoice(string memory _proposalDescription) external whitelistedVotersOnly onlyDuringProposalRegistering {
         // Check that the proposal is not already existing
         // this is probably quite gas expensive, it should probably be optimized or removed.
         for (uint i=0; i<proposalsArray.length; i++) {
@@ -267,7 +267,7 @@ contract Vote is Ownable {
      * Note : voters have to add at least one voting option to be able to
      *        end this step.
      */
-    function endProposalRegistration() public onlyOwner onlyDuringProposalRegistering {
+    function endProposalRegistration() external onlyOwner onlyDuringProposalRegistering {
         require(proposalsArray.length != 0,"At least one vote proposal must be registered to continue to next step");
         setVotingStep(WorkflowStatus.ProposalsRegistrationEnded);
     }
@@ -278,7 +278,7 @@ contract Vote is Ownable {
     /*
      * @dev Allow admin to start voting session
      */
-    function startVotingSession() public onlyOwner {
+    function startVotingSession() external onlyOwner {
         require(votingStep == WorkflowStatus.ProposalsRegistrationEnded, "Not in proposals registation ended state");
         setVotingStep(WorkflowStatus.VotingSessionStarted);
     }
@@ -295,7 +295,7 @@ contract Vote is Ownable {
      * @dev Allow registered voters to vote for their favorite voting option
      * 
      */
-    function vote(uint _proposalId) public whitelistedVotersOnly onlyDuringVotingSession {
+    function vote(uint _proposalId) external whitelistedVotersOnly onlyDuringVotingSession {
         if (!allowVoteUpdate)
             require(voters[msg.sender].hasVoted == false,"You can only vote once");
         require(_proposalId < proposalsArray.length,"Proposal ID does not exist");
@@ -316,7 +316,7 @@ contract Vote is Ownable {
     /*
      * @dev Allow administrator to end voting session
      */
-    function endVotingSession() public onlyOwner onlyDuringVotingSession {
+    function endVotingSession() external onlyOwner onlyDuringVotingSession {
         setVotingStep(WorkflowStatus.VotingSessionEnded);
     }
 
@@ -326,7 +326,7 @@ contract Vote is Ownable {
     /*
      * @dev Allow administrator to trigger finding winning proposal
      */
-    function countVotes() public onlyOwner {
+    function countVotes() external onlyOwner {
         require(votingStep == WorkflowStatus.VotingSessionEnded, "Not in voting session ended state");
         // find winning proposal
         uint maxVoteCount = 0;
@@ -354,7 +354,7 @@ contract Vote is Ownable {
      * @dev Allow to get id of the winning proposal
      * @return uint32 containing id of the winning proposal
      */
-    function getWinnerId() public view onlyDuringVotesTallied returns (uint) {
+    function getWinnerId() external view onlyDuringVotesTallied returns (uint) {
         return finalResult.winningProposalId;
     }
 
@@ -362,7 +362,7 @@ contract Vote is Ownable {
      * @dev Allow to get id of the winning proposal
      * @return uint32 containing id of the winning proposal
      */
-    function getWinnerProposalDetails() public view onlyDuringVotesTallied returns (Proposal memory) {
+    function getWinnerProposalDetails() external view onlyDuringVotesTallied returns (Proposal memory) {
         return proposalsArray[finalResult.winningProposalId];
     }
 
@@ -372,7 +372,7 @@ contract Vote is Ownable {
      *        has been available for enough time.
      *        When restarted, everything is reinitialized, including voters list.
      */
-    function startNewVote() public onlyOwner onlyDuringVotesTallied {
+    function startNewVote() external onlyOwner onlyDuringVotesTallied {
         require(block.timestamp >= finalResult.resultDate + resultGracePeriod,"Wait for the grace period to end");
         finalResult.winningProposalId = 0;
         // remove current voters
