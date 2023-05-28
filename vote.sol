@@ -124,10 +124,11 @@ contract Vote is Ownable {
     }
 
     /*
-     * @dev Allow anyone to get the the list of registered voters
+     * @dev Allow admin and voters to get the the list of registered voters
      * @return address[] containing registered voters addresses
      */
     function getVotersList() external view returns (address[] memory) {
+        require ((owner() == msg.sender) || (voters[msg.sender].isRegistered),"You are not allowed");
         return votersArray;
     }
 
