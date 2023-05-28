@@ -72,17 +72,13 @@ contract Vote is Ownable {
         uint voteCount;
     }
 
-    struct Result {
-        uint resultDate;
-        uint winningProposalId;
-    }
-
     uint resultGracePeriod = 10 minutes; // We want the results to be available for a minimum period so everyone could see them
     WorkflowStatus votingStep;
     mapping (address => Voter) voters;
     address[] votersArray; // Needed to reset voters when starting a new vote
     Proposal[] proposalsArray;
-    Result finalResult;
+    uint resultDate;
+    uint winningProposalId;
     bool allowVoteUpdate;
 
     // events sent during voting process
@@ -333,12 +329,12 @@ contract Vote is Ownable {
         require(votingStep == WorkflowStatus.VotingSessionEnded, "Not in voting session ended state");
         // find winning proposal
         uint maxVoteCount = 0;
-        finalResult.winningProposalId = 0;
-        finalResult.resultDate = block.timestamp;
+        winningProposalId = 0;
+        resultDate = block.timestamp;
         for (uint i=0; i<proposalsArray.length; i++) {
             if (proposalsArray[i].voteCount > maxVoteCount) {
                 maxVoteCount = proposalsArray[i].voteCount;
-                finalResult.winningProposalId = i;
+                winningProposalId = i;
             }
         }
         // Results are now available !
@@ -358,7 +354,7 @@ contract Vote is Ownable {
      * @return uint32 containing id of the winning proposal
      */
     function getWinnerId() external view onlyDuringVotesTallied returns (uint) {
-        return finalResult.winningProposalId;
+        return winningProposalId;
     }
 
     /*
@@ -366,7 +362,7 @@ contract Vote is Ownable {
      * @return uint32 containing id of the winning proposal
      */
     function getWinnerProposalDetails() external view onlyDuringVotesTallied returns (Proposal memory) {
-        return proposalsArray[finalResult.winningProposalId];
+        return proposalsArray[winningProposalId];
     }
 
     /*
@@ -376,8 +372,8 @@ contract Vote is Ownable {
      *        When restarted, everything is reinitialized, including voters list.
      */
     function startNewVote() external onlyOwner onlyDuringVotesTallied {
-        require(block.timestamp >= finalResult.resultDate + resultGracePeriod,"Wait for the grace period to end");
-        finalResult.winningProposalId = 0;
+        require(block.timestamp >= resultDate + resultGracePeriod,"Wait for the grace period to end");
+        winningProposalId = 0;
         // remove current voters
         for (uint i=0;i<votersArray.length;i++) {
             delete voters[votersArray[i]];
